@@ -1,10 +1,14 @@
 from pandas.tseries.holiday import *
 from pandas.tseries.offsets import CustomBusinessDay
 
-#General Holidays for Spain
 class calendario_fiestas_españa(AbstractHolidayCalendar):
+   
+   """
+      Esta clase se utiliza dentro de la función 'limpiar_csv()' 
+   para agregar la columna de días festivos.
+   """
+   
    rules = [
-     #Spain - If one holiday is on a Sunday, each Autonomous Community can change it to a Monday.
      Holiday('Año Nuevo', month=1, day=1, observance=sunday_to_monday),
      Holiday('Epifanía del Señor', month=1, day=6, observance=sunday_to_monday),
      Holiday('Viernes Santo', month=1, day=1, offset=[Easter(), Day(-2)]),
@@ -65,7 +69,6 @@ def limpiar_csv(df):
             2 - autumn: 36.91525423728814        
             3 - winter: 38.43700787401575
             4 - summer: 41.42702702702703
-
         """
         if date in seasons['spring']:
             return 1
