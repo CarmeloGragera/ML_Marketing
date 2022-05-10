@@ -39,7 +39,33 @@ def predict():
 
 @app.route('/api/v1/retrain', methods=['PUT'])
 def train():
+    data = pd.read_csv('data/Users_web.csv')
     
+
+    fecha = str(data['Date'].max())
+    mes_max = int(fecha[5:7])
+    anio_max = int(fecha[0:4])
+
+    if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
+        print('Este modelo no está actualizado')
+        #Hacer query a Amazon y traer valores del último mes
+        # Añaadir a data las últimas filas solicitadas
+        # Reentrenar modelo con fichero csv actualizado
+        # Calcular MAPE.
+        # if MAPE < 0.20:
+            # PERFECT
+        # ELSE:
+            #GRIDSEARCH.
+
+
+    elif today.month-mes_max<2:
+            print('Este modelo sí está actualizado')
+
+
+
+
+
+
     primero_mes = '01/'+str(today.month)+'/'+str(today.year)
     fecha_dt = datetime.datetime.strptime(primero_mes, '%d/%m/%Y')
 
