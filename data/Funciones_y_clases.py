@@ -1,29 +1,21 @@
-from pandas.tseries.holiday import AbstractHolidayCalendar, Holiday, Easter, Day, sunday_to_monday
+from pandas.tseries.holiday import *
+from pandas.tseries.offsets import CustomBusinessDay
 
-# Clase para añadir los días festivos a nuestro dataframe:
+#General Holidays for Spain
 class calendario_fiestas_españa(AbstractHolidayCalendar):
-    
-    """
-        Para usar esta clase primero tenemos que cargar 
-    la librería de 'pandas.tseries.holiday'.
-    
-        Esta clase se utiliza dentro de la función 'limpiar_csv()'
-    para poder sacar los días festivos.
-    """
-    
-    dias = [
-        Holiday('Año Nuevo', month=1, day=1, observance=sunday_to_monday),
-        Holiday('Epifanía del Señor', month=1, day=6, observance=sunday_to_monday),
-        Holiday('Viernes Santo', month=1, day=1, offset=[Easter(), Day(-2)]),
-        Holiday('Día del Trabajador', month=5, day=1, observance=sunday_to_monday),
-        Holiday('Asunción de la Virgen', month=8, day=15, observance=sunday_to_monday),
-        Holiday('Día de la Hispanidad', month=10, day=12, observance=sunday_to_monday),
-        Holiday('Todos los Santos', month=11, day=1, observance=sunday_to_monday),
-        Holiday('Día Constitución', month=12, day=6, observance=sunday_to_monday),
-        Holiday('Inmaculada Concepción', month=12, day=8, observance=sunday_to_monday),	    
-        Holiday('Navidad', month=12, day=25, observance=sunday_to_monday)   
+   rules = [
+     #Spain - If one holiday is on a Sunday, each Autonomous Community can change it to a Monday.
+     Holiday('Año Nuevo', month=1, day=1, observance=sunday_to_monday),
+     Holiday('Epifanía del Señor', month=1, day=6, observance=sunday_to_monday),
+     Holiday('Viernes Santo', month=1, day=1, offset=[Easter(), Day(-2)]),
+     Holiday('Día del Trabajador', month=5, day=1, observance=sunday_to_monday),
+     Holiday('Asunción de la Virgen', month=8, day=15, observance=sunday_to_monday),
+     Holiday('Día de la Hispanidad', month=10, day=12, observance=sunday_to_monday),
+     Holiday('Todos los Santos', month=11, day=1, observance=sunday_to_monday),
+     Holiday('Día Constitución', month=12, day=6, observance=sunday_to_monday),
+     Holiday('Inmaculada Concepción', month=12, day=8, observance=sunday_to_monday),	    
+     Holiday('Navidad', month=12, day=25, observance=sunday_to_monday)
    ]
-
 
 # Función para crear el dataframe con las nuevas columnas a partir
 # de los datos de la página:
@@ -65,17 +57,27 @@ def limpiar_csv(df):
                 'summer': date_range(start='21/06/'+year, end='22/09/'+year),
                 'autumn': date_range(start='23/09/'+year, end='20/12/'+year)}
         
+        """
+            Las estaciones del año estan ponderadas en función de la media de
+        usuarios que visitan la página en dichas estaciones:
+        
+            1 - spring: 33.93181818181818
+            2 - autumn: 36.91525423728814        
+            3 - winter: 38.43700787401575
+            4 - summer: 41.42702702702703
+
+        """
         if date in seasons['spring']:
-            return 'spring'
+            return 1
         
         if date in seasons['summer']:
-            return 'summer'
+            return 4
         
         if date in seasons['autumn']:
-            return 'autumn'
+            return 2
         
         else:
-            return 'winter'
+            return 3
         
     df['season'] = df["Date"].map(season_of_date)
     df["weekend"] = df["weekend"].replace(True,1)
