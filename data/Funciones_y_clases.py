@@ -1,7 +1,7 @@
 from pandas.tseries.holiday import *
 from pandas.tseries.offsets import CustomBusinessDay
 
-class calendario_fiestas_españa(AbstractHolidayCalendar):
+class calendario_fiestas_espana(AbstractHolidayCalendar):
    
    """
       Esta clase se utiliza dentro de la función 'limpiar_csv()' 
@@ -37,7 +37,7 @@ def limpiar_csv(df):
         Recibe un dataframe como parámetro y 
     lo devuelve con las nuevas columnas añadidas
     
-        Esta función requiere la clase 'calendario_fiestas_españa' para
+        Esta función requiere la clase 'calendario_fiestas_espana' para
     poder hacer uso de ella.
     """
 
@@ -86,13 +86,21 @@ def limpiar_csv(df):
     df["weekend"] = df["weekend"].replace(True,1)
     df["weekend"] = df["weekend"].replace(False,0)
     
-    cal = calendario_fiestas_españa()
+    cal = calendario_fiestas_espana()
     holidays = cal.holidays(start=df["Date"].min(), end=df["Date"].max())
     
     df["festivo"] = df["Date"].isin(holidays)
     df["festivo"] = df["festivo"].replace(True,1)
     df["festivo"] = df["festivo"].replace(False,0)
-    
+
+    """
+        eliminar la primera columna ya no necesaria
+    """
+
+    df = df.iloc[:,1:] 
+
+
+
     return df
 
 
