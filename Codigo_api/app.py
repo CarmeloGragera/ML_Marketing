@@ -5,6 +5,7 @@ from sklearn.linear_model import Lasso
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import datetime #Importar módulo de fecha y hora
+from Funciones_y_clases import limpiar_csv, remove_outliers
 
 os.chdir(os.path.dirname(__file__))
 
@@ -48,6 +49,8 @@ def train():
 
     if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
         print('Este modelo no está actualizado')
+
+
         #Hacer query a Amazon y traer valores del último mes
         # Añaadir a data las últimas filas solicitadas
         # Reentrenar modelo con fichero csv actualizado
