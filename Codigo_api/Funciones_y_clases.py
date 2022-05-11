@@ -154,8 +154,8 @@ def data_aws():
 
     # insertamos todo el dataframe
 
-    sql = '''SELECT * FROM users_web'''
-    cursor.execute(sql)
+    sqr = '''SELECT * FROM user_web'''
+    cursor.execute(sqr)
     mi_tabla = cursor.fetchall()
 
     data = pd.DataFrame(mi_tabla)
