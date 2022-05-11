@@ -1,5 +1,8 @@
 from pandas.tseries.holiday import *
 from pandas.tseries.offsets import CustomBusinessDay
+import pandas as pd
+import pymysql
+from sqlalchemy import create_engine
 
 class calendario_fiestas_espana(AbstractHolidayCalendar):
    
@@ -129,3 +132,34 @@ df = limpiar_csv(df)
 remove_outliers(df,100)
 
 """
+
+def data_aws():
+    username = "admin"
+    password = "Engamu1991"
+    host = "database-1.c8psbqlfu9e7.us-east-1.rds.amazonaws.com"
+
+    db = pymysql.connect(host = host,
+                        user = username,
+                        password = password,
+                        cursorclass = pymysql.cursors.DictCursor
+    )
+
+    # El objeto cursor es el que ejecutará las queries y devolverá los resultados
+    cursor = db.cursor()
+
+    cursor.connection.commit()
+    use_db = ''' USE user_web'''
+    cursor.execute(use_db)
+
+
+    # insertamos todo el dataframe
+
+    sql = '''SELECT * FROM users_web'''
+    cursor.execute(sql)
+    mi_tabla = cursor.fetchall()
+
+    data = pd.DataFrame(mi_tabla)
+
+    db.close()
+
+    return data
