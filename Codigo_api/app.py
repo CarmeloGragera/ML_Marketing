@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import datetime #Importar módulo de fecha y hora
 import sqlite3 as sql
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 
 class DBController(): #Clase para controlar DB
     def __init__(self, database_route):
@@ -82,33 +83,50 @@ def train():
     fecha = str(data['Date'].max())
     mes_max = int(fecha[5:7])
     anio_max = int(fecha[0:4])
+    primero_mes = '01/'+str(today.month)+'/'+str(today.year)
+    # Convertimos un string con formato <día>/<mes>/<año> en datetime
+    fecha_dt = datetime.datetime.strptime(primero_mes, '%d/%m/%Y')
+
 
     if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
         print('Este modelo no está actualizado')
-        
-
+    
         #Query
         fecha_query = "%" + fecha + "%"
-        query = "SELECT * FROM database_sql WHERE Date > ? " #Revisar, también puede ser 
-        database_sql.querySQL(query)                                #"SELECT * FROM database_sql WHERE Date >" + str(fecha)
+        query = "SELECT * FROM database_sql WHERE Date >"+ str(fecha) + "AND Date < " +str(fecha_dt) 
+        #Revisar, también puede ser 
+        #"SELECT * FROM database_sql WHERE Date >" + str(fecha)
+        database_sql.querySQL(query)                                
 
         #Reentrenar modelo
 
         new_data = pd.DataFrame(responses)
 
         ##Aqui van transformaciones de new data para luego concatenar con data(Llamar funciones de Antonio)
+        # Habría que ver que nos devuelve el modelo para ver las transformaciones que debemos a hacer.
 
         data_concat = pd.concat([data, new_data], axis=0)
         X = data_concat["Data"]
         Y = data_concat["Otras columnas"]
 
-        #Reentrenar modelo 
+        #Split de la nuestro dataset
 
-        ##Aquí va modelo
+        X_train, X_test, y_train, y_test = train_test_split(data.drop(columns=['sales']),
+                                                        data['sales'],
+                                                        test_size = 0.05,
+                                                        random_state=42)
+        
+        #Reentrenar modelo 
+        model.fit(X_train, y_train)
 
         #Calcular MAPE
-
-        ##Aquí va calcular MAPE
+        MAPE_nuevo_resultado = mean_absolute_percentage_error(y_test, model.predict(X_test))
+        
+        if MAPE_nuevo_resultado <= 0.20:
+            pickle.dump(model, open('ad_model.pkl', 'wb'))
+        
+        else:
+        # Nos falta el GridSearch.
         
 
         
@@ -127,12 +145,6 @@ def train():
             print('Este modelo está actualizado')
 
 
-
-
-
-
-    primero_mes = '01/'+str(today.month)+'/'+str(today.year)
-    fecha_dt = datetime.datetime.strptime(primero_mes, '%d/%m/%Y')
 
     # En este caso la obtención de datos sería con una query a AWS. 
     # data = pd.read_csv('data/Advertising.csv', index_col=0)
