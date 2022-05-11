@@ -4,6 +4,7 @@ import pickle
 from sklearn.linear_model import Lasso
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from Funciones_y_clases import db_actualization
 
 os.chdir(os.path.dirname(__file__))
 
@@ -11,106 +12,62 @@ os.chdir(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+model = pickle.load(open('ad_model.pkl','rb'))
 
 
 @app.route('/', methods=['GET'])
 def home():
-    return "<h1>Hello World!! Just trying</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+    return """<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>jQuery UI Datepicker - Uso básico</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+    <script>
+    $(function () {
+        $("#datepicker").datepicker();
+        });
+    </script>
+    </head>
+
+<body>
+    <h1>The Bridge Predicts</h1>
+    <div>
+        <h3>¿Quienes somos?</h3>
+        <p>The Bridge Predicts somos un equipo de Data Scientist que trabajamos para hacer las mejores predicciones en el mercado.</p>
+        <p>Trabajamos conlas mejores tecnicas y tecnologias del momento, ya que estamos en continua actualización, para dar el mejor servicio al cliente.</p>
+    </div>
+    <div>
+        <button>Home</button>
+        <button>Predict</button>
+        <button>Retrain</button>
+    </div>
+    <div>
+        <h3>Nuestro equipo:</h3>
+        <p>Antonio, Carmelo, Enrique, Gretel, Lorenzo, Lucy, Miguel y Hector</p>
+    </div>
+
+<div id="datepicker">
+    <p>Seleccione una fecha a predecir:</p>
+</div>
+</body>
+
+<footer>
+    <div>
+        <h2>Contactanos</h2>
+        <p>Perfil Github: https://github.com/CarmeloGragera/ML_Marketing_grupo_3</p>
+    </div>
+</footer>
+
+</html>"""
 
 # 1.Ruta para obtener todos los libros
-@app.route('/api/v0/resources/books/all', methods=['GET'])
+@app.route('/api/database_update', methods=['GET'])
 def get_all():
-    return jsonify(books)
-
-# 2.Ruta para obtener un libro concreto mediante su id como parámetro en la llamada
-@app.route('/api/v0/resources/book', methods=['GET'])
-def book_id():
-    results = []
-    if 'id' in request.args:
-        id = int(request.args['id'])
-        for book in books:
-            if book['id']==id:
-                results.append(book)
-        if results == []:
-            return "Book not found with the id requested"
-        else:
-            return jsonify(results)
-    else:
-        return "No id field provided"
-
-
-# 3.Ruta para obtener un libro concreto mediante su título como parámetro en la llamada de otra forma
-@app.route('/api/v0/resources/book/<string:title>', methods=['GET'])
-def book_title(title):
-    results = []
-    for book in books:
-        if book['title']==title:
-            results.append(book)
-    if results != []:
-        return jsonify(results)
-    else:
-        return "Book title not found"
-
-# 4.Ruta para obtener un libro concreto mediante su título dentro del cuerpo de la llamada
-@app.route('/api/v1/resources/book', methods=['GET'])
-def book_title_body():
-    results = []
-    title = request.get_json()['title']
-    for book in books:
-        if book['title']==title:
-            results.append(book)
-    if results != []:
-        return jsonify(results)
-    else:
-        return "Book title not found"
-
-
-# 5.Ruta para añadir un libro mediante parámetros en la llamada
-@app.route('/api/v1/resources/book/add', methods=['POST'])
-def post_book():
-    data = request.get_json()
-    books.append(data)
-    return jsonify(books)
-
-# 6.Ruta para añadir un libro de otra forma 1
-@app.route('/api/v1/resources/book/add_parameters', methods=['POST'])
-def post_book_parameters():
-    data = {}
-    if 'id' in request.args:
-        data['id'] = request.args['id']
-    if 'title' in request.args:
-        data['title'] = request.args['title']
-    if 'author' in request.args:
-        data['author'] = request.args['author']
-    if 'first_sentence' in request.args:
-        data['first_sentence'] = request.args['first_sentence']
-    if 'published' in request.args:
-        data['published'] = request.args['published']
-    books.append(data)
-    return jsonify(books)
-
-
-# 7.Ruta para modificar un libro
-@app.route('/api/v1/resources/book/update', methods=['PUT'])
-def update_book():
-    year = request.args['year']
-    title = request.args['title']
-    for book in books:
-        if book['title'] == title:
-            book['published'] = year
-    return jsonify(books)
-
-# 8.Ruta para eliminar un libro
-@app.route('/api/v1/resources/book/delete', methods=['DELETE'])
-def delete_book():
-    if 'title' in request.args:
-        title = request.args['title']
-        for book in books:
-            if book['title'] == title:
-                books.remove(book)
-        return jsonify(books)
-    else:
-        return "Falta un titulo del libro para borrar"
+    action = db_actualization()
+    return action
 
 
 if __name__ == "__main__":
