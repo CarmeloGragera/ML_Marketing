@@ -1,20 +1,29 @@
 from flask import Flask, jsonify, request
-from data.datos_dummy import books
+import os
+import pickle
+from sklearn.linear_model import Lasso
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-application = Flask(__name__)
+os.chdir(os.path.dirname(__file__))
 
 
-@application.route('/', methods=['GET'])
+app = Flask(__name__)
+app.config['DEBUG'] = True
+
+
+
+@app.route('/', methods=['GET'])
 def home():
     return "<h1>Hello World!! Just trying</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
 
 # 1.Ruta para obtener todos los libros
-@application.route('/api/v0/resources/books/all', methods=['GET'])
+@app.route('/api/v0/resources/books/all', methods=['GET'])
 def get_all():
     return jsonify(books)
 
 # 2.Ruta para obtener un libro concreto mediante su id como parámetro en la llamada
-@application.route('/api/v0/resources/book', methods=['GET'])
+@app.route('/api/v0/resources/book', methods=['GET'])
 def book_id():
     results = []
     if 'id' in request.args:
@@ -23,7 +32,7 @@ def book_id():
             if book['id']==id:
                 results.append(book)
         if results == []:
-            return "Book not found with the id requested"    
+            return "Book not found with the id requested"
         else:
             return jsonify(results)
     else:
@@ -31,7 +40,7 @@ def book_id():
 
 
 # 3.Ruta para obtener un libro concreto mediante su título como parámetro en la llamada de otra forma
-@application.route('/api/v0/resources/book/<string:title>', methods=['GET'])
+@app.route('/api/v0/resources/book/<string:title>', methods=['GET'])
 def book_title(title):
     results = []
     for book in books:
@@ -43,7 +52,7 @@ def book_title(title):
         return "Book title not found"
 
 # 4.Ruta para obtener un libro concreto mediante su título dentro del cuerpo de la llamada
-@application.route('/api/v1/resources/book', methods=['GET'])
+@app.route('/api/v1/resources/book', methods=['GET'])
 def book_title_body():
     results = []
     title = request.get_json()['title']
@@ -53,18 +62,18 @@ def book_title_body():
     if results != []:
         return jsonify(results)
     else:
-        return "Book title not found"    
+        return "Book title not found"
 
 
 # 5.Ruta para añadir un libro mediante parámetros en la llamada
-@application.route('/api/v1/resources/book/add', methods=['POST'])
+@app.route('/api/v1/resources/book/add', methods=['POST'])
 def post_book():
     data = request.get_json()
     books.append(data)
     return jsonify(books)
 
 # 6.Ruta para añadir un libro de otra forma 1
-@application.route('/api/v1/resources/book/add_parameters', methods=['POST'])
+@app.route('/api/v1/resources/book/add_parameters', methods=['POST'])
 def post_book_parameters():
     data = {}
     if 'id' in request.args:
@@ -82,7 +91,7 @@ def post_book_parameters():
 
 
 # 7.Ruta para modificar un libro
-@application.route('/api/v1/resources/book/update', methods=['PUT'])
+@app.route('/api/v1/resources/book/update', methods=['PUT'])
 def update_book():
     year = request.args['year']
     title = request.args['title']
@@ -92,7 +101,7 @@ def update_book():
     return jsonify(books)
 
 # 8.Ruta para eliminar un libro
-@application.route('/api/v1/resources/book/delete', methods=['DELETE'])
+@app.route('/api/v1/resources/book/delete', methods=['DELETE'])
 def delete_book():
     if 'title' in request.args:
         title = request.args['title']
@@ -105,5 +114,5 @@ def delete_book():
 
 
 if __name__ == "__main__":
-    application.debug = True
-    application.run()
+    app.debug = True
+    app.run()
