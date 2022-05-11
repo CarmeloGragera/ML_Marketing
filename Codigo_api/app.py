@@ -1,14 +1,50 @@
+from http.client import responses
+from re import X
+from urllib import response
 from flask import Flask, jsonify, request
 import os
 import pickle
+from jsonschema import draft201909_format_checker
 from sklearn.linear_model import Lasso
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import datetime #Importar módulo de fecha y hora
-from Funciones_y_clases import limpiar_csv, remove_outliers
+import sqlite3 as sql
+
+class DBController(): #Clase para controlar DB
+    def __init__(self, database_route):
+        self.database_route = database_route
+
+    def querySQL(self, query, parameters=[]):
+        con = sql.connect(self.database_route)
+        cur = con.cursor()
+        cur.execute(query, parameters)
+
+        keys = []
+        for item in cur.description:
+            keys.append(item[0])
+
+        responses = []
+        for response in cur.fetchall():
+            ix_clave = 0
+            d = {}
+            for column in keys:
+                d[column] = response[ix_clave]
+                ix_clave += 1
+            responses.append(d)
+
+        con.close()
+        return responses
+    
+    def changeSQL(self, query, parameters):
+        con = sql.connect(self.database_route)
+        cur = con.cursor()
+        cur.execute(query, parameters) 
+        con.commit()
+        con.close()
 
 os.chdir(os.path.dirname(__file__))
-
+database_sql = DBController()
 today = datetime.date.today () #Obtener la fecha de hoy
 yesterday = today - datetime.timedelta(days=1) #Restar la diferencia horaria con la fecha de hoy, el parámetro es 1 día, obtener la fecha de ayer
 tomorrow = today + datetime.timedelta(days=1)
@@ -49,10 +85,36 @@ def train():
 
     if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
         print('Este modelo no está actualizado')
+        
 
+        #Query
+        fecha_query = "%" + fecha + "%"
+        query = "SELECT * FROM database_sql WHERE Date > ? " #Revisar, también puede ser 
+        database_sql.querySQL(query)                                #"SELECT * FROM database_sql WHERE Date >" + str(fecha)
 
-        #Hacer query a Amazon y traer valores del último mes
-        # Añaadir a data las últimas filas solicitadas
+        #Reentrenar modelo
+
+        new_data = pd.DataFrame(responses)
+
+        ##Aqui van transformaciones de new data para luego concatenar con data(Llamar funciones de Antonio)
+
+        data_concat = pd.concat([data, new_data], axis=0)
+        X = data_concat["Data"]
+        Y = data_concat["Otras columnas"]
+
+        #Reentrenar modelo 
+
+        ##Aquí va modelo
+
+        #Calcular MAPE
+
+        ##Aquí va calcular MAPE
+        
+
+        
+        #Pasos:
+        #Hacer query a Amazon y traer valores del último mes (Listo)
+        # Añaadir a data las últimas filas solicitadas (Listo)
         # Reentrenar modelo con fichero csv actualizado
         # Calcular MAPE.
         # if MAPE < 0.20:
@@ -62,7 +124,7 @@ def train():
 
 
     elif today.month-mes_max<2:
-            print('Este modelo sí está actualizado')
+            print('Este modelo está actualizado')
 
 
 
