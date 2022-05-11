@@ -6,6 +6,9 @@ import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 from sklearn.linear_model import LinearRegression
+import os
+
+os.chdir(os.path.dirname(__file__))
 
 
 
@@ -139,7 +142,7 @@ remove_outliers(df,100)
 
 """
 
-def data_aws():
+def data_aws(sqr):
     username = "admin"
     password = "Engamu1991"
     host = "database-1.c8psbqlfu9e7.us-east-1.rds.amazonaws.com"
@@ -160,7 +163,6 @@ def data_aws():
 
     # insertamos todo el dataframe
 
-    sqr = '''SELECT * FROM user_web'''
     cursor.execute(sqr)
     mi_tabla = cursor.fetchall()
 
@@ -170,39 +172,12 @@ def data_aws():
 
     return data
 
-def equipo2_aws():
-    username = "admin"
-    password = "Grupo2AWS"
-    host = "web-users.czjoi0srhr5i.eu-west-3.rds.amazonaws.com"
-        
-    db = pymysql.connect(host = host,
-                        user = username,
-                        password = password,
-                        cursorclass = pymysql.cursors.DictCursor
-    )
-
-    # El objeto cursor es el que ejecutará las queries y devolverá los resultados
-    cursor = db.cursor()
-
-    cursor.connection.commit()
-    use_db = ''' USE users_web_db'''
-    cursor.execute(use_db)
-
-    sql = '''SELECT * FROM users_web'''
-    cursor.execute(sql)
-    mi_tabla = cursor.fetchall()
-
-    data = pd.DataFrame(mi_tabla)
-
-    db.close()
-
-    return data
 
 def db_actualization():
     today = datetime.date.today () #Obtener la fecha de hoy
     data = data_aws('''SELECT * FROM user_web''')
     data['Date'] = pd.to_datetime(data['Date'], format="%Y-%m-%d")
-    df = pd.read_csv("user_web_final.csv", index_col=0)
+    df = pd.read_csv("data/user_web_final.csv", index_col=0)
     df['Date'] = pd.to_datetime(df['Date'], format="%Y-%m-%d")
 
     fecha = str(data['Date'].max())
@@ -213,17 +188,19 @@ def db_actualization():
     # # Convertimos un string con formato <día>/<mes>/<año> en datetime
     fecha_dt = str(datetime.datetime.strptime(primero_mes, '%d/%m/%Y'))
 
+
     if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
 
         new_data = data_aws("SELECT * FROM user_web WHERE Date between "+ "'" + fecha_df[0:10] + "'" + " AND " + "'" + fecha_dt[0:10] + "'")
-        df = pd.read_csv("user_web_final.csv", index_col=0)
+        df = pd.read_csv("data/user_web_final.csv", index_col=0)
         season_dict = {"spring": 1, "summer": 4, "autumn": 2, "winter": 3}
         new_data["season"] = new_data["season"].replace(season_dict)
         df["season"] = df["season"].replace(season_dict)
 
+
         df_2 = pd.concat([df, new_data], axis=0)
 
-        X = df.drop(columns=["Users","Date"])
+        X = df_2.drop(columns=["Users","Date"])
         Y = df_2["Users"]
 
         X_train = X[:-140]
@@ -239,10 +216,13 @@ def db_actualization():
 
         new_mape = mean_absolute_percentage_error(Y_test, prediction)
 
-        if new_mape <= 0.20:
+        if new_mape <= 0.25:
 
             pickle.dump(model_2, open('ad_model.pkl', 'wb'))
             return print("Tu modelo ha sido actualizado")
 
         else:
             return print("Tu modelo antiguo ofrece mejores resultados.")
+
+    else:
+        print('Tu modelo actualizado a la última')
