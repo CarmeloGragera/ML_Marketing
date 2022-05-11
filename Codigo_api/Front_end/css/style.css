@@ -1,0 +1,125 @@
+*{
+    background-image: url("../img/Fondos-para-paginas-web-grandes.jpg");
+    background-position-x: center;
+    background-position-y: center;
+}
+
+body {
+    width: 80%;
+    margin: 0px auto;
+    border: 1px solid black;
+    height: auto;
+    background:white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#container{
+    width: 100%;
+    margin: 0px auto;
+    border: 1px solid black;
+    background: rgb(48, 47, 73);
+}
+
+header{
+    color: white;
+    text-align: center;
+    background: rgb(48, 47, 73);
+}
+
+h1{
+    background: rgb(48, 47, 73);
+}
+
+
+
+
+nav ul li{
+    float: left;
+    list-style: none;
+    margin: 20px;
+    line-height: 15px;
+    text-align: center;
+    background: white;
+}
+
+a{
+    background: white;
+    outline: none;
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    display: inline-block;
+}
+
+.clearfix{
+    clear:both;
+}
+
+.imagen{
+    width: 100%;
+    height: 500px;
+    margin: 0px auto;
+    border: 1px solid black;
+    background-image: url("../img/smart-cities.jpg");
+    background-repeat: no-repeat;
+    background-attachment:local;
+    background-size: cover;
+}
+
+div{
+    width: 90%;
+    text-align: justify;
+    background: white;
+    margin: 0px auto;
+}
+
+p{
+    width: 90%;
+    text-align: justify;
+    background: white;
+    margin: 0px auto;
+}
+
+h2{
+    width: 90%;
+    text-align: justify;
+    background: white;
+    margin: 0px auto;
+}
+
+h3{
+    width: 90%;
+    text-align: justify;
+    background: white;
+    margin: 0px auto;
+}
+
+.about{
+    color: black;
+    width: 80%;
+    margin: 0px auto;
+    border: 1px solid black;
+    height: auto;
+    background:white;
+}
+
+
+
+
+
+footer{
+    width: 100%;
+    margin: 0px auto;
+    border: 1px solid black;
+    background: rgb(48, 47, 73);
+    color: white;}
+
+#footer{
+    background: rgb(48, 47, 73);
+    text-align: center;
+}
+.footer{
+    background: rgb(48, 47, 73);
+    
+
+}
