@@ -1,4 +1,4 @@
-# Modelo_predictivo_ventas
+# Modelo predictivo de ventas
 
 Objetivo del proyecto: 
 
