@@ -133,11 +133,7 @@ remove_outliers(df,100)
 
 """
 
-<<<<<<< HEAD
 def data_aws():
-=======
-def data_aws(sqr):
->>>>>>> eb52142d20121edf74c6d2212d34b78babaab57f
     username = "admin"
     password = "Engamu1991"
     host = "database-1.c8psbqlfu9e7.us-east-1.rds.amazonaws.com"
