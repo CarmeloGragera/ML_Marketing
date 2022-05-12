@@ -2,18 +2,6 @@ from pandas.tseries.holiday import *
 from pandas.tseries.offsets import CustomBusinessDay
 import pandas as pd
 import pymysql
-<<<<<<< HEAD
-=======
-import datetime 
-import pickle
-from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
-from sklearn.linear_model import LinearRegression
-import os
-
-os.chdir(os.path.dirname(__file__))
-
-
->>>>>>> eb52142d20121edf74c6d2212d34b78babaab57f
 
 
 class calendario_fiestas_espana(AbstractHolidayCalendar):
@@ -170,10 +158,7 @@ def data_aws(sqr):
 
     # insertamos todo el dataframe
 
-<<<<<<< HEAD
     sqr = '''SELECT * FROM user_web'''
-=======
->>>>>>> eb52142d20121edf74c6d2212d34b78babaab57f
     cursor.execute(sqr)
     mi_tabla = cursor.fetchall()
 
@@ -183,7 +168,6 @@ def data_aws(sqr):
 
     return data
 
-<<<<<<< HEAD
 def equipo2_aws():
     username = "admin"
     password = "Grupo2AWS"
@@ -211,59 +195,3 @@ def equipo2_aws():
     db.close()
 
     return data
-=======
-
-def db_actualization():
-    today = datetime.date.today () #Obtener la fecha de hoy
-    data = data_aws('''SELECT * FROM user_web''')
-    data['Date'] = pd.to_datetime(data['Date'], format="%Y-%m-%d")
-    df = pd.read_csv("data/user_web_final.csv", index_col=0)
-    df['Date'] = pd.to_datetime(df['Date'], format="%Y-%m-%d")
-
-    fecha = str(data['Date'].max())
-    fecha_df = str(df['Date'].max())
-    mes_max = int(fecha_df[5:7])
-    anio_max = int(fecha_df[0:4])
-    primero_mes = '01/'+str(today.month)+'/'+str(today.year)
-    # # Convertimos un string con formato <día>/<mes>/<año> en datetime
-    fecha_dt = str(datetime.datetime.strptime(primero_mes, '%d/%m/%Y'))
-
-
-    if (anio_max<=today.year and today.month-mes_max>=2) or (anio_max<today.year and mes_max != 12):
-
-        new_data = data_aws("SELECT * FROM user_web WHERE Date between "+ "'" + fecha_df[0:10] + "'" + " AND " + "'" + fecha_dt[0:10] + "'")
-        df = pd.read_csv("data/user_web_final.csv", index_col=0)
-        season_dict = {"spring": 1, "summer": 4, "autumn": 2, "winter": 3}
-        new_data["season"] = new_data["season"].replace(season_dict)
-        df["season"] = df["season"].replace(season_dict)
-
-
-        df_2 = pd.concat([df, new_data], axis=0)
-
-        X = df_2.drop(columns=["Users","Date"])
-        Y = df_2["Users"]
-
-        X_train = X[:-140]
-        X_test = X[-140:]
-
-        Y_train = Y[:-140]
-        Y_test = Y[-140:]
-
-        model_2 = LinearRegression()
-        model_2.fit(X_train, Y_train)
-
-        prediction = model_2.predict(X_test)
-
-        new_mape = mean_absolute_percentage_error(Y_test, prediction)
-
-        if new_mape <= 0.25:
-
-            pickle.dump(model_2, open('ad_model.pkl', 'wb'))
-            return print("Tu modelo ha sido actualizado")
-
-        else:
-            return print("Tu modelo antiguo ofrece mejores resultados.")
-
-    else:
-        print('Tu modelo actualizado a la última')
->>>>>>> eb52142d20121edf74c6d2212d34b78babaab57f
