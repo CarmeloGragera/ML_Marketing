@@ -4,6 +4,8 @@ import pickle
 from sklearn.linear_model import Lasso
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from Funciones_y_clases import db_actualization
+
 
 os.chdir(os.path.dirname(__file__))
 
